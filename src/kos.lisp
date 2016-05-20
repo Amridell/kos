@@ -4,7 +4,12 @@
   `(dotimes (,(gensym) ,count)
 	    ,@body))
 
-(defun make-map (x y)
+(defstruct map-floor
+  (tiles nil :type list)
+  (width nil :type integer)
+  (height nil :type integer))
+
+(defun make-map-floor-tiles (x y)
   (check-type x (integer 2 *))
   (check-type x (integer 2 *))
   (let (map)
@@ -27,13 +32,18 @@
 	(push :wall top-wall))
       (push top-wall map))))
 
-(defun print-map (map width height)
-  (dotimes (y height)
+(defun print-map-floor (map width height)
+  (declare (ignore height))
+  (dolist (row map)
     (dotimes (x width)
-      (princ (case (nth x (nth y map))
+      (princ (case (nth x row)
 	       (:wall #\#)
 	       (:floor #\.))))
     (princ #\Newline)))
 
 (defun kos ()
-  (princ "Welcome to King of Shadows"))
+  (format t "Welcome to King of Shadows!~%")
+  (let ((map (make-map-floor :tiles (make-map-floor-tiles 5 5)
+			     :width 5
+			     :height 5)))
+    (print-map-floor (map-floor-tiles map) 5 5)))
