@@ -33,18 +33,26 @@
 	       (:floor #\.))))
       (lambda (name &rest args)
 	(declare (ignore args))
-	(case name
-	  (:print
-	   (dotimes (y height)
-	     (let ((row (nth y tiles)))
-	       (dotimes (x width)
-		 (princ (wallsym-to-char (nth x row)))))
-	     (princ #\Newline)))
-	  (:render
-	   (dotimes (y height)
-	     (let ((row (nth y tiles)))
-	       (dotimes (x width)
-		 (tb:change-cell x y (wallsym-to-char (nth x row)) termbox:+default+ termbox:+default+))))))))))
+	(flet ((draw-it (function)
+		 (dotimes (y height)
+		   (let ((row (nth y tiles)))
+		     (dotimes (x width)
+		       (let ((char (wallsym-to-char (nth x row))))
+			 (funcall function char x y))))
+		   (princ #\Newline))))
+
+	  (case name
+	    (:print
+	     (draw-it (lambda (char x y)
+			(declare (ignore x))
+			(declare (ignore y))
+			(princ char))))
+	    (:render
+	     (draw-it (lambda (char x y)
+			(tb:change-cell x y char termbox:+default+ termbox:+default+) x y)))
+
+	    (:passable?
+	     )))))))
 
 (defun make-player (x y)
   (check-type x (integer 0 *))
@@ -65,5 +73,3 @@
   (tb:present)
   (sleep 1)
   (tb:shutdown))
-
-(kos:kos)
