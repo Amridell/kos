@@ -27,16 +27,24 @@
 		     (push :wall top-wall))
 		   (push top-wall map))
 		 map)))
-    (lambda (name &rest args)
-      (declare (ignore args))
-      (case name
-	(:print
-	 (dolist (row tiles)
-	   (dotimes (x width)
-	     (princ (case (nth x row)
-		      (:wall #\#)
-		      (:floor #\.))))
-	   (princ #\Newline)))))))
+    (flet ((wallsym-to-char (wallsym)
+	     (case wallsym
+	       (:wall #\#)
+	       (:floor #\.))))
+      (lambda (name &rest args)
+	(declare (ignore args))
+	(case name
+	  (:print
+	   (dotimes (y height)
+	     (let ((row (nth y tiles)))
+	       (dotimes (x width)
+		 (princ (wallsym-to-char (nth x row)))))
+	     (princ #\Newline)))
+	  (:render
+	   (dotimes (y height)
+	     (let ((row (nth y tiles)))
+	       (dotimes (x width)
+		 (tb:change-cell x y (wallsym-to-char (nth x row)) termbox:+default+ termbox:+default+))))))))))
 
 (defun make-player (x y)
   (check-type x (integer 0 *))
@@ -49,6 +57,13 @@
 	   ))))))
 
 (defun kos ()
-  (format t "Welcome to King of Shadows!~%")
+  ;(format t "Welcome to King of Shadows!~%")
+  (tb:init)
+  (tb:clear)
   (let ((map-floor (make-map-floor 10 6)))
-    (funcall map-floor :print)))
+    (funcall map-floor :render))
+  (tb:present)
+  (sleep 1)
+  (tb:shutdown))
+
+(kos:kos)
