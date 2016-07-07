@@ -15,6 +15,9 @@
   :version "0.0.0"
   :pathname "src"
   :components ((:file "package")
+	       (:file "utilities")
+	       (:file "map"
+		      :depends-on ("utilities"))
 	       (:file "kos"
-		      :depends-on ("package")))
+		      :depends-on ("package" "utilities" "map")))
   :depends-on (:cl-termbox))
