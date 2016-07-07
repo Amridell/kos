@@ -21,7 +21,6 @@
 	width
 	height)
     (lambda (name &rest args)
-      (format t "renderer: ~A ~A~%" name args)
       (if false-mode
 	  (case name
 	    (:init
@@ -54,7 +53,11 @@
 		   (char (pop args))
 		   (fg (pop args))
 		   (bg (pop args)))
-	       (tb:change-cell x y char (or fg termbox:+default+) (or bg termbox:+default+)))))))))
+	       (tb:change-cell x y char (or fg termbox:+default+) (or bg termbox:+default+))))
+	    (:present
+	     (tb:present))
+	    (:shutdown
+	     (tb:shutdown)))))))
 
 (defun kos (&optional (slime? nil))
   ;(format t "Welcome to King of Shadows!~%")
