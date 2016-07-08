@@ -48,7 +48,7 @@
 	  (princ char))))
     (princ #\Newline)))
 
-(defun make-floor (renderer width height)
+(defun make-floor (io width height)
   (check-type width (integer 2 *))
   (check-type height (integer 2 *))
   (let ((tiles (make-rectangular-room width height)))
@@ -61,7 +61,7 @@
 	   (let ((row (nth y tiles)))
 	     (dotimes (x width)
 	       (let ((char (wallsym-to-char (nth x row))))
-		 (funcall renderer :change-cell x y char))))))
+		 (funcall io :change-cell x y char))))))
 	;; can we enter a certain tile?
 	(:passable?
 	 (let ((tile (tile-at tiles (pop args) (pop args))))

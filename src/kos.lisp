@@ -1,13 +1,13 @@
 (in-package :kos)
 
-(defun make-player (renderer x y)
+(defun make-player (io x y)
   (check-type x (integer 0 *))
   (check-type y (integer 0 *))
   (let ((character #\@))
     (lambda (name &rest args)
       (case name
 	(:render
-	 (funcall renderer :change-cell x y character))
+	 (funcall io :change-cell x y character))
 	(:move
 	 (let ((floor (pop args))
 	       (new-x (pop args))
@@ -16,7 +16,7 @@
 	     (setf x new-x
 		   y new-y))))))))
 
-(defun make-renderer (&optional false-mode)
+(defun make-io (&optional false-mode)
   (let (cells
 	width
 	height)
@@ -41,7 +41,11 @@
 	       (let ((row (nth y cells)))
 		 (dotimes (x width)
 		   (princ (nth x row)))
-		 (princ #\Newline)))))
+		 (princ #\Newline))))
+	    (:poll-event
+	     (case (read)
+	       (q
+		:quit))))
 	  (case name
 	    (:init
 	     (tb:init))
@@ -57,16 +61,26 @@
 	    (:present
 	     (tb:present))
 	    (:shutdown
-	     (tb:shutdown)))))))
+	     (tb:shutdown))
+	    (:poll-event
+	     (let ((event (termbox:event-plist (tb:poll-event))))
+	       (cond
+		 ((= (getf event :ch) (char-code #\q))
+		  :quit)))))))))
 
 (defun kos (&optional (slime? nil))
   ;(format t "Welcome to King of Shadows!~%")
-  (let ((renderer (make-renderer slime?)))
-    (funcall renderer :init)
-    (funcall renderer :clear)
-    (let ((map-floor (make-floor renderer 10 6)))
-      (funcall map-floor :render))
-    (funcall renderer :present)
+  (let ((io (make-io slime?)))
+    (funcall io :init)
+    (funcall io :clear)
+    (let ((map-floor (make-floor io 10 6))
+	  (player (make-player io 1 1))
+	  (running t))
+      (while running
+	(if (eq (funcall io :poll-event) :quit)
+	    (setf running nil))
+	(funcall map-floor :render)
+	(funcall io :present)))
     (unless slime?
       (sleep 1))
-    (funcall renderer :shutdown)))
+    (funcall io :shutdown)))
