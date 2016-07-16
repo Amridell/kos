@@ -76,11 +76,13 @@
     (let ((map-floor (make-floor io 10 6))
 	  (player (make-player io 1 1))
 	  (running t))
+      (funcall map-floor :render)
+      (funcall player :render)
+      (funcall io :present)
       (while running
 	(if (eq (funcall io :poll-event) :quit)
 	    (setf running nil))
 	(funcall map-floor :render)
+	(funcall player :render)
 	(funcall io :present)))
-    (unless slime?
-      (sleep 1))
     (funcall io :shutdown)))
