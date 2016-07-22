@@ -151,9 +151,9 @@
       ;; Copy areas into list.
       (dolist (area areas)
 	(loop
-	   for n from (y area)
+	   for n from (- (y area) y1)
 	   for row in (data area)
-	   do (setf (subseq (nth n tiles) (x area)) row)))
+	   do (setf (subseq (nth n tiles) (- (x area) x1)) row)))
       tiles)))
 
 (defmethod draw ((shape level))
@@ -164,7 +164,7 @@
 ;;; Test generation of a level.
 (setf *random-state* (make-random-state t))
 (defparameter shabam (make-instance 'level))
-(add (make-instance 'area :height 5 :width 8 :y 1) shabam)
-(add (make-instance 'area :height 6 :width 10 :x 12) shabam)
+(add (make-instance 'area :height 5 :width 8 :x -2 :y 1) shabam)
+(add (make-instance 'area :height 6 :width 10 :x 12 :y -1) shabam)
 (add (make-instance 'area :height 4 :width 14 :x 2 :y 7) shabam)
 (draw shabam)
