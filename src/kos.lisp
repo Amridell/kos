@@ -1,88 +1,62 @@
 (in-package :kos)
 
-(defun make-player (io x y)
+(declaim (optimize (debug 3)))
+
+(defun make-player (floor x y)
   (check-type x (integer 0 *))
   (check-type y (integer 0 *))
   (let ((character #\@))
     (lambda (name &rest args)
       (case name
 	(:render
-	 (funcall io :change-cell x y character))
+	 (tb:change-cell x y character))
 	(:move
-	 (let ((floor (pop args))
-	       (new-x (pop args))
+	 (let ((new-x (pop args))
 	       (new-y (pop args)))
 	   (when (funcall floor :passable? new-x new-y)
 	     (setf x new-x
-		   y new-y))))))))
+		   y new-y))))
+	(:move-relative
+	 (let ((x-offset (pop args))
+	       (y-offset  (pop args)))
+	   (when (funcall floor :passable? (+ x x-offset) (+ y y-offset))
+	     (incf x x-offset)
+	     (incf y y-offset))))))))
 
-(defun make-io (&optional false-mode)
-  (let (cells
-	width
-	height)
-    (lambda (name &rest args)
-      (if false-mode
-	  (case name
-	    (:init
-	     (setf width 50
-		   height 20)
-	     (setf cells (make-grid width height)))
-	    (:clear
-	     (dotimes (y height)
-	       (dotimes (x width)
-		 (setf (tile-at cells x y) #\Space))))
-	    (:change-cell
-	     (let ((x (pop args))
-		   (y (pop args))
-		   (char (pop args)))
-	       (setf (tile-at cells x y) char)))
-	    (:present
-	     (dotimes (y height)
-	       (let ((row (nth y cells)))
-		 (dotimes (x width)
-		   (princ (nth x row)))
-		 (princ #\Newline))))
-	    (:poll-event
-	     (case (read)
-	       (q
-		:quit))))
-	  (case name
-	    (:init
-	     (tb:init))
-	    (:clear
-	     (tb:clear))
-	    (:change-cell
-	     (let ((x (pop args))
-		   (y (pop args))
-		   (char (pop args))
-		   (fg (pop args))
-		   (bg (pop args)))
-	       (tb:change-cell x y char (or fg termbox:+default+) (or bg termbox:+default+))))
-	    (:present
-	     (tb:present))
-	    (:shutdown
-	     (tb:shutdown))
-	    (:poll-event
-	     (let ((event (termbox:event-plist (tb:poll-event))))
-	       (cond
-		 ((= (getf event :ch) (char-code #\q))
-		  :quit)))))))))
-
-(defun kos (&optional (slime? nil))
+(defun kos ()
   ;(format t "Welcome to King of Shadows!~%")
-  (let ((io (make-io slime?)))
-    (funcall io :init)
-    (funcall io :clear)
-    (let ((map-floor (make-floor io 10 6))
-	  (player (make-player io 1 1))
-	  (running t))
+  (tb:init)
+  (tb:clear)
+  (let* ((map-floor (make-floor 36 5)) ;; "room.txt"))
+	 (player (make-player map-floor 1 1))
+	 (running t))
+    (funcall map-floor :render)
+    (funcall player :render)
+    ;;(print (convert-room "room.txt"))
+    (print (make-floor 2 3 "room.txt"))
+    (tb:present)
+    (while running
+      (let* ((event (tb:poll-event))
+	     (plist (termbox:event-plist event))
+	     (char (getf plist :ch)))
+	(tb:write-text 0 20 (format nil "~A" plist))
+	(when char
+	  (fn-case char (lambda (char-int char-char) (= char-int (char-code char-char)))
+	    (#\q
+	     (setf running nil))
+	    (#\j
+	     (funcall player :move-relative 0 1))
+	    (#\k
+	     (funcall player :move-relative 0 -1))
+	    (#\h
+	     (funcall player :move-relative -1 0))
+	    (#\l
+	     (funcall player :move-relative 1 0)))))
       (funcall map-floor :render)
       (funcall player :render)
-      (funcall io :present)
-      (while running
-	(if (eq (funcall io :poll-event) :quit)
-	    (setf running nil))
-	(funcall map-floor :render)
-	(funcall player :render)
-	(funcall io :present)))
-    (funcall io :shutdown)))
+      (tb:present)))
+  (tb:shutdown))
+
+;; this is just a convenience function so that we can more easily exit a broken termbox session
+(defun common-lisp-user::s ()
+  (tb:shutdown))
