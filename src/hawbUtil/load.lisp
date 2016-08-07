@@ -3,7 +3,9 @@
 ;;inorder to get cffi all 
 ;;you need to do is quickload it
 (ql:quickload :cffi)
-(ql:quickload :cl-tcod)
+
+;;loading cl-tcod into lisp
+;;(ql:quickload :cl-tcod)
 
 ;;dont think defstar is used in this
 ;;or maybe you dooo...
@@ -20,6 +22,6 @@
 
 ;;tests to see if you can run
 ;;the hello world sample
-(tcod:hello-world)
+;;(tcod:hello-world)
 
 ;;)
