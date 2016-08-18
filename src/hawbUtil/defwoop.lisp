@@ -89,4 +89,7 @@
 	;(print (list (/ numx demx) (/ numy demy))))
 	(list (/ numx demx) (/ numy demy))))
 
+;; source 
+;; https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
+
 (print (get-intersect-new 0 0 3 2 1 0 1 1))
