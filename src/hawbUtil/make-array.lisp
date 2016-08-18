@@ -1,4 +1,3 @@
-
 ;;checks the inputted map to see if all of the 
 ;;inner lists are equi-length, if so, makes a 2d array
 (defun make-map-array (map) 
