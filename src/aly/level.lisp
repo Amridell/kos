@@ -231,9 +231,11 @@
 	    (= (floor y) (floor (+ y dy))))))
 
 (defun is-parallel (ux uy vx vy)
+  "Test if two vectors are parallel."
   (< (abs (- (* ux vy) (* vx uy))) *somewhat-zero*))
 
 (defun get-segment-intersection (px py ux uy qx qy vx vy)
+  "Get intersection point of two line segments."
   (let* ((wx (- px qx))
 	 (wy (- py qy))
 	 (s_numerator (- (* vy wx) (* vx wy)))
@@ -249,15 +251,17 @@
 	       ;;(and (<= 0 s_intersection 1) (<= 0 t_intersection 1)))))))
 
 (defun segments-intersect-p (px py ux uy qx qy vx vy)
+  "Test if two line segments intersect."
   (= (length (get-segment-intersection px py ux uy qx qy vx vy)) 2))
 
 (defun vector-length (&rest components)
+  "Get vector magnitude."
   (loop for x in components
      when (numberp x) summing (* x x) into total
      finally (return (sqrt total))))
 
 (defun project-ray-to-grid (x y rx ry)
-  "Return next grid line intersection."
+  "Get next grid line intersection along the ray."
   ;; TODO: implement.
   (let ((i1
 	 (cond ((> rx 0)
