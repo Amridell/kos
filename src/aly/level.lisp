@@ -248,7 +248,6 @@
 	       (cond ((and (<= 0 s_intersection 1) (<= 0 t_intersection 1))
 		      (list (+ px (* s_intersection ux)) (+ py (* s_intersection uy))))
 		     (t nil)))))))
-	       ;;(and (<= 0 s_intersection 1) (<= 0 t_intersection 1)))))))
 
 (defun segments-intersect-p (px py ux uy qx qy vx vy)
   "Test if two line segments intersect."
