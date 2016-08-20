@@ -106,6 +106,8 @@
 
 	(let ((xinter nil) (yinter nil) (h-intersect nil)) 
 
+		;;THIS DOESNT WORK AS INTENDED, WILL JUST PICK ONE DIRECTION TO GO IN
+
 		(if (=string hdir "right")
 			(setq h-intersect (get-intersect startx starty finalx finaly 
 											(+ startx 1) starty  (+ startx 1) (+ starty 1)))
@@ -117,6 +119,10 @@
 											startx starty startx (+ 1 starty)))
 			(setq v-intersect (get-intersect startx starty finalx finaly 
 											startx starty (+ startx 1) starty)))
+		
+		;;THIS DOESNT WORK AS INTENDED, WILL JUST PICK ONE DIRECTION TO GO IN
+
+
 
 		(if (< (line-length startx starty (car h-intersect) (cadr h-intersect)) 
 				(line-length startx starty (car v-intersect) (cadr v-intersect)))
