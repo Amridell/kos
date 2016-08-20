@@ -233,7 +233,7 @@
 (defun is-parallel (ux uy vx vy)
   (< (abs (- (* ux vy) (* vx uy))) *somewhat-zero*))
 
-(defun segments-intersect-p (px py ux uy qx qy vx vy)
+(defun get-segment-intersection (px py ux uy qx qy vx vy)
   (let* ((wx (- px qx))
 	 (wy (- py qy))
 	 (s_numerator (- (* vy wx) (* vx wy)))
@@ -243,7 +243,13 @@
     (cond ((< (abs s_denominator) *somewhat-zero*) nil)
 	  (t (let ((s_intersection (/ s_numerator s_denominator))
 		   (t_intersection (/ t_numerator t_denominator)))
-	       (and (<= 0 s_intersection 1) (<= 0 t_intersection 1)))))))
+	       (cond ((and (<= 0 s_intersection 1) (<= 0 t_intersection 1))
+		      (list (+ px (* s_intersection ux)) (+ py (* s_intersection uy))))
+		     (t nil)))))))
+	       ;;(and (<= 0 s_intersection 1) (<= 0 t_intersection 1)))))))
+
+(defun segments-intersect-p (px py ux uy qx qy vx vy)
+  (= (length (get-segment-intersection px py ux uy qx qy vx vy)) 2))
 
 (defun ray-intersects-cell-p (x y rx1 ry1 rx2 ry2)
   ;; TODO: implement using segments-intersect-p
