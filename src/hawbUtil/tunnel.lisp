@@ -1,5 +1,7 @@
 
 (defvar *somewhat-zero* 0.0001)
+;;small number to check the closeness 
+;;of the slopes of two lines
 
 (defun random-from (low high)
   "Return a random number between the specified low and high limits."
@@ -9,10 +11,8 @@
 
 	"hopefully returns two integers i guess"
 
-	;;(if ( < (abs (- (/ (- y2 y1) (- x2 x1)) 
-		;;	(/ (- y4 y3) (- x4 x3)))) .01) 
-		;;(break))
-
+	;;does a bunch of jank shit to get some
+	;;numbers of things
 	(let 
 		((numx 
 			(- 
@@ -97,25 +97,25 @@
 	(list (/ numx demx) (/ numy demy))))
 
 
-(defclass line-seg () ( (sx :initarg :sx :initform 0 :accessor sx) 
-						(sy :initarg :sy :initform 0 :accessor sy) 
-						(fx :initarg :fx :initform 0 :accessor fx) 
-						(fy :initarg :fy :initform 0 :accessor fy)))
-;(slot-value thing 'sx)
+(defclass line-seg () (
+		;;make a class that has 4 values that will 
+		;;symbolize the coords of the start
+		;;and finish points
+		(sx :initarg :sx :initform 0 :accessor sx) 
+		(sy :initarg :sy :initform 0 :accessor sy) 
+		(fx :initarg :fx :initform 0 :accessor fx) 
+		(fy :initarg :fy :initform 0 :accessor fy)))
+
 
 
 
 (defun line-length (in-line)
+	;;returns the sqrt of the sum of the 
+	;;squares of the delta x's and y's
     (sqrt (+
     		(expt (- (slot-value in-line 'fx) (slot-value in-line 'sx)) 2) 
     		(expt (- (slot-value in-line 'fy) (slot-value in-line 'sy)) 2))))
 
-
-;(print (get-intersect 0 0 3 2 1 0 1 1))
-
-
-;1st item (car '(9 8 7))
-;2nd item (cadr '(9 8 7))
 
 (defun get-segment-intersection (px py ux uy qx qy vx vy)
   "Get intersection point of two line segments."
@@ -150,146 +150,126 @@
 (if (null i2) i1 i2)))
 
 
-(defun tunnel-rec (array in-line hdir vdir) 
-
-	(let  	;(xinter) 
-			;(yinter) 
-			(intersect)
-
-			(list array in-line hdir vdir intersect)
-
-		;;THIS DOESNT WORK AS INTENDED, WILL JUST PICK ONE DIRECTION TO GO IN
-
-		#|
-		(if (string= hdir "right")
-			(print "right")
-			(print "left"))
-
-		(if (string= vdir "down")
-			(print "down")
-			(print "up"))
-		|#
-
-		(let ( 	(new-x (slot-value in-line 'sx)) (new-y (slot-value in-line 'sy))
-				(fin-x (slot-value in-line 'fx)) (fin-y (slot-value in-line 'fy))
-				(dir) (coord))
+(defun tunnel-rec (in-line hdir vdir) 
+			
+	(let ( 	
+			;;saves the x and y coords for the
+			;;ending and starting points
+			(new-x (slot-value in-line 'sx)) (new-y (slot-value in-line 'sy))
+			(fin-x (slot-value in-line 'fx)) (fin-y (slot-value in-line 'fy))
+			;;set up the vars dir, for making
+			;;a list of directions
+			(dir) 
+			;;and coords for saving the values
+			;;of the next intersection
+			(coord))
 		
-			(loop while (and (< new-x fin-x) (< new-y fin-y)) 
+		;;loop while inbetween start
+		;;and final points
+		(loop while (and (< new-x fin-x) (< new-y fin-y)) 
 
-				do (setf coord (project-ray-to-grid new-x new-y fin-x fin-y))
+			;;set coord to the next intersection
+			do (setf coord (project-ray-to-grid new-x new-y fin-x fin-y))
 
-				do (if (integerp (car coord))
-					(setf dir hdir)
-					(setf dir vdir))
-
-				;do (print "loop")
+			;;if the first part of coord
+			;;is an integer, it means
+			;;that its hit a horizantal
+			;;wall, else, its a vert wall
+			do (if (integerp (car coord))
+				(setf dir hdir)
+				(setf dir vdir))				
 				
-				
-				do (setf new-x (car coord))
-				do (setf new-y (cadr coord))
+			;;set the new-x and new-y to 
+			;;the intersection that was just
+			;;found
+			do (setf new-x (car coord))
+			do (setf new-y (cadr coord))
 		
-				collect dir))))
-		
-		;;THIS DOESNT WORK AS INTENDED, WILL JUST PICK ONE DIRECTION TO GO IN
+			;;collect the direction that was 
+			;;found using the project-ray
+			;function
+			collect dir)))
 
-		;(print xinter) 
-		;(print yinter) 
-		;(print h-intersect) 
-		;(print array)
-
-		;(tunnel-rec array in-line hdir vdir))
 
 
 (defun tunnel (array in-line)
-
-    ;"1 is up, 2 is down, 3 is left, 4 is right" 
-    ;u d l r
-
-    ;(if (< startx 0) (return-from tunnel nil))
-    ;(if (< starty 0) (return-from tunnel nil))
-    ;(if (< finalx 0) (return-from tunnel nil))
-    ;(if (< finaly 0) (return-from tunnel nil))
     
     (let 
+    	;;set up the directions var for later
     	((directions)
+
+    	;;save all the coords starting and ending
+    	;;x and y values
     	(fn-x (slot-value in-line 'fx))
     	(fn-y (slot-value in-line 'fy))
     	(pt-x (slot-value in-line 'sx))
     	(pt-y (slot-value in-line 'sy))
+
     	(hdir "left") 
     	(vdir "up")) 
 
+    		;;set hdir to right, if its not going to 
+    		;;be going to the left
         	(if (> (- (slot-value in-line 'fx) (slot-value in-line 'sx)) 0) 	
         		(setf hdir "right"))
 
+        	;;same thing but for the vertical dir
         	(if (> (- (slot-value in-line 'fy) (slot-value in-line 'sy)) 0) 
         		(setf vdir "down"))
+
+        	;;
+        	(setf directions (tunnel-rec in-line hdir vdir))
         
-        ;(pprint "1 is up, 2 is down, 3 is left, 4 is right")
-        ;(format t "~%hdir: ~a vdir: ~a ~%" hdir vdir)
-        ;(print (string= "hello" "world"))
-        
-        	(setf directions (tunnel-rec array in-line hdir vdir))
-        
+        	;;go through the directions, and for 
+        	;;each one, if still in range, loop 
+        	;;through changing chars
     		(loop for command in directions 
     			while (and (< pt-x fn-x) (< pt-y fn-y))
 
-    			;(setf (aref x 2 1) "blue
-    			;do (print 9)
-    			
+    			;;set the space to a period
     			do (setf (aref array pt-x pt-y) #\.)
 
+    			;;go through the directions 
+    			;;if the strings fit, incriment
+    			;;or decriment accordingly
     			(if (string= command "left") 	(setf pt-x (- pt-x 1)))
     			(if (string= command "right") 	(setf pt-x (+ pt-x 1)))
     			(if (string= command "up") 		(setf pt-y (- pt-y 1)))
-    			(if (string= command "down") 	(setf pt-y (+ pt-y 1)))))
-
-    ;(loop for char in array 
-    ;	do (print char))
-    
-    (format t "~a~%" array))
+    			(if (string= command "down") 	(setf pt-y (+ pt-y 1))))))
 
 
 ;; source 
 ;; https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line
 
-;(print (get-intersect 0 0 3 2 1 0 1 1))
-	
-;(print (make-array '(17 20) :initial-element #\#))
-
 (let* ( (map-thing)
-		(array-h 20)
-		(array-l 17)
-		(stx (random-from 1 (- 20 1)))
-		(sty (random-from 1 (- 17 1)))
-		(fiy (random-from 1 (- 17 1)))
-		(fix (random-from 1 (- 20 1)))
+		;;sets the bounds for the 2d array
+		(array-l 20)
+		(array-h 17)
 
-		;(print st-x)
+		;;sets the points for the line
+		(stx (random-from 1 (- array-l 1)))
+		(sty (random-from 1 (- array-h 1)))
+		(fiy (random-from 1 (- array-h 1)))
+		(fix (random-from 1 (- array-l 1)))
 
-	  	(line-new (make-instance 'line-seg 
+		;;makes a line obj that will
+		(line-new (make-instance 'line-seg 
 	  							:sx stx :sy sty 
 	  							:fx fix :fy fiy)))
-
-	  	;(line-new (make-instance 'line-seg 
-	  	;						:sx 1 :sy 1 
-	  	;						:fx 3 :fy 7)))
+	  	;;(line-new (make-instance 'line-seg 
+	  	;;						:sx 1 :sy 1 
+	  	;;						:fx 4 :fy 10)))
 	
+	;;print out the coords for the line
 	(format t "(~a ~a) to (~a ~a)~%" stx sty fix fiy)
 
-    (setf map-thing (make-array (list array-h array-l) :initial-element '#\ ))
+	;;make the array, init it to spaces
+    (setf map-thing (make-array (list array-l array-h) :initial-element '#\ ))
     
-    ;;do things to tunnel through this shit
+    ;;call the tunnel function that will
+    ;;make periods appear in the 2d array
+    (tunnel map-thing line-new)
     
-    (tunnel map-thing line-new))
-    
-	;(defun things (x1) (x1 2 3))
-
-	;(things #'-)
-    
-    ;(print map-thing))
-    
-
-
-
- 
+    ;;print map-thing
+    (format t "~a~%" map-thing))
+   
