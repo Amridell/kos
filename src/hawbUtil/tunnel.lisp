@@ -91,8 +91,16 @@
 	(list (/ numx demx) (/ numy demy))))
 
 
-(defun line-length (x1 y1 x2 y2) 
-    (sqrt (+ (exp (- x2 x1) 2) (- y2 y1))))
+(defclass line-seg () ( (sx :init-arg :sx :initform 0) 
+						(sy :init-arg :sy :initform 0) 
+						(fx :init-arg :fx :initform 0) 
+						(fy :init-arg :fy :initform 0)))
+;(slot-value thing 'sx)
+
+(defun line-length (in-line) 
+    (sqrt (+ 
+    		(exp (- (slot-value in-line 'fx) (slot-value line 'sx)) 2) 
+    		(exp (- (slot-value in-line 'fy) (slot-value line 'sy')) 2))))
 
 
 ;(print (get-intersect 0 0 3 2 1 0 1 1))
@@ -102,40 +110,39 @@
 ;2nd item (cadr '(9 8 7))
 
 
-(defun tunnel (array startx starty finalx finaly hdir vdir) 
+(defun tunnel (array in-line hdir vdir) 
 
-	(let ((xinter nil) (yinter nil) (h-intersect nil)) 
+	(let ((xinter nil) (yinter nil) (h-intersect nil))
 
 		;;THIS DOESNT WORK AS INTENDED, WILL JUST PICK ONE DIRECTION TO GO IN
 
 		(if (=string hdir "right")
-			(setq h-intersect (get-intersect startx starty finalx finaly 
-											(+ startx 1) starty  (+ startx 1) (+ starty 1)))
-			(setq h-intersect (get-intersect startx starty finalx finaly 
-											startx (+ starty 1) (+ startx 1) (+ starty 1))))
+			(print "right")
+			(print "left"))
 
 		(if (=string vdir "down") 
-			(setq v-intersect (get-intersect startx starty finalx finaly 
-											startx starty startx (+ 1 starty)))
-			(setq v-intersect (get-intersect startx starty finalx finaly 
-											startx starty (+ startx 1) starty)))
+			(print "down")
+			(print "up"))
 		
 		;;THIS DOESNT WORK AS INTENDED, WILL JUST PICK ONE DIRECTION TO GO IN
 
 
 
-		(if (< (line-length startx starty (car h-intersect) (cadr h-intersect)) 
-				(line-length startx starty (car v-intersect) (cadr v-intersect)))
-
-			((setq xinter (car h-intersect)) (setq yinter (cadr	h-intersect)))
-			((setq xinter (car v-intersect)) (setq yinter (cadr v-intersect))))
+		
+			(let 
+				((v-line :sx (slot-value in-line 'sx) :sy (slot-value in-line 'sy) :fx (car v-intersect) :fy (cadr v-intersect))
+			     (h-line :sx (slot-value in-line 'sx) :sy (slot-value in-line 'sy) :fx (car h-intersect) :fy (cadr h-intersect)) )
+			
+				(if (< (line-length h-line) (line-length v-line))
+					((setf xinter (car h-intersect)) (setf yinter (cadr	h-intersect)))
+					((setf xinter (car v-intersect)) (setf yinter (cadr v-intersect))))
 
 		(tunnel array xinter yinter finalx finaly hdir vdir))))
 
 	
 
 
-(defun tunnel (array startx starty finalx finaly) 
+(defun tunnel (array in-line)
 
     ;"1 is up, 2 is down, 3 is left, 4 is right" 
     ;u d l r
@@ -145,18 +152,21 @@
     ;(if (< finalx 0) (return-from tunnel nil))
     ;(if (< finaly 0) (return-from tunnel nil))
     
-    (let ((hdir "left") (vdir "up")) 
-        (if (> (- finalx startx) 0) (setq hdir "right"))
-        (if (> (- finaly starty) 0) (setq vdir "down"))
+    (let 
+    	((hdir "left") 
+    	(vdir "up")) 
+
+        (if (> (- (slot-value in-line 'fx) (slot-value in-line 'sx)) 0) 	
+        		(setf hdir "right"))
+
+        (if (> (- (slot-value in-line 'fy) (slot-value in-line 'sy)) 0) 
+        		(setf vdir "down"))
         
         ;(pprint "1 is up, 2 is down, 3 is left, 4 is right")
-        
         ;(format t "~%hdir: ~a vdir: ~a ~%" hdir vdir)
-
-        (print (string= "hello" "world"))
+        ;(print (string= "hello" "world"))
         
-        (tunnel array startx starty finalx finaly hdir vdir)
-    ))
+        (tunnel array in-line hdir vdir)))
 
 
 
@@ -169,12 +179,12 @@
 	
 ;(print (make-array '(17 20) :initial-element #\#))
 
-(let (map-thing)
+(let (map-thing) (line-new make-)
 
-    (setq map-thing (make-array '(17 20) :initial-element '#\#))
+    (setf map-thing (make-array '(17 20) :initial-element '#\#))
     
     ;;do things to tunnel through this shit
-    (tunnel map-thing 1 1 13 15)
+    ;(tunnel map-thing 1 1 13 15)
     
 	;(defun things (x1) (x1 2 3))
 
