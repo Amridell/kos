@@ -165,6 +165,20 @@
 (defun array-from-level (level)
   (array-from-list (list-from-level level)))
 
+(defun wallp (tile)
+  "Check if a tile is a wall."
+  (equalp tile #\#))
+
+(defun withinp (array x y)
+  (destructuring-bind (h w) (array-dimensions array)
+    (and (>= x 0) (>= y 0) (< x w) (< y h))))
+
+(defun visiblep (level-array x-position y-position)
+  (destructuring-bind (height width) (array-dimensions level-array)
+    (loop for (dx  dy) in '((-1 -1) (-1 0) (-1 1) (0 1)
+			    (1 1) (1 0) (1 -1) (0 -1))
+	 do (print (list (+ x-position dx) (+ y-position dy))))))
+
 (defun draw-array (level-array)
   (destructuring-bind (height width) (array-dimensions level-array)
     (loop for y from 0 to (- height 1)
