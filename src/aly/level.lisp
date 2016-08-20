@@ -190,6 +190,14 @@
   "Draw a level to the screen."
   (draw-area (list-from-level shape)))
 
+(defclass corridor (shape)
+  ((direction :initform nil
+	      :accessor direction
+	      :documentation "Direction of the corridor. (N, S, E, W)")
+   (length :initform 1
+	   :accessor size
+	   :documentation "Length of the corridor along its direction.")))
+
 
 ;;; Test generation of a level.
 (setf *random-state* (make-random-state t))
