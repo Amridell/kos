@@ -112,7 +112,7 @@
 
 (defun tunnel (array in-line hdir vdir) 
 
-	(let ((xinter nil) (yinter nil) (h-intersect nil)) 
+	(let ((xinter nil) (yinter nil) (h-intersect nil))
 
 		;;THIS DOESNT WORK AS INTENDED, WILL JUST PICK ONE DIRECTION TO GO IN
 
@@ -137,12 +137,12 @@
 					((setf xinter (car h-intersect)) (setf yinter (cadr	h-intersect)))
 					((setf xinter (car v-intersect)) (setf yinter (cadr v-intersect))))
 
-		(tunnel array xinter yinter finalx finaly hdir vdir)))
+		(tunnel array xinter yinter finalx finaly hdir vdir))))
 
 	
 
 
-(defun tunnel (array in-line) 
+(defun tunnel (array in-line)
 
     ;"1 is up, 2 is down, 3 is left, 4 is right" 
     ;u d l r
