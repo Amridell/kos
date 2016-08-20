@@ -251,19 +251,31 @@
 (defun segments-intersect-p (px py ux uy qx qy vx vy)
   (= (length (get-segment-intersection px py ux uy qx qy vx vy)) 2))
 
-(defun ray-intersects-cell-p (x y rx1 ry1 rx2 ry2)
-  ;; TODO: implement using segments-intersect-p
-  T)
-
 (defun vector-length (&rest components)
   (loop for x in components
      when (numberp x) summing (* x x) into total
      finally (return (sqrt total))))
 
-(defun project-ray (x y rx ry)
+(defun project-ray-to-grid (x y rx ry)
   "Return next grid line intersection."
   ;; TODO: implement.
-  T)
+  (let ((i1
+	 (cond ((> rx 0)
+		(get-segment-intersection x y rx ry (floor (+ x 1)) (floor y) 0 1))
+	       ((< rx 0)
+		(get-segment-intersection x y rx ry (floor x) (floor y) 0 1))
+	       (t nil)))
+	(i2
+	 (cond ((> ry 0)
+		(get-segment-intersection x y rx ry (floor x) (floor (+ y 1)) 1 0))
+	       ((< ry 0)
+		(get-segment-intersection x y rx ry (floor x) (floor y) 1 0))
+	       (t nil))))
+    (if (null i2) i1 i2)))
+
+(defun ray-intersects-cell-p (x y rx1 ry1 rx2 ry2)
+  ;; TODO: implement using segments-intersect-p
+  t)
 
 (defun tunnel (array x y)
   (setf (aref array x y) #\Space)
