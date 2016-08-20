@@ -101,8 +101,8 @@
 
 (defun line-length (in-line)
     (sqrt (+
-    		(exp (- (slot-value in-line 'fx) (slot-value in-line 'sx)) 2) 
-    		(exp (- (slot-value in-line 'fy) (slot-value in-line 'sy)) 2))))
+    		(expt (- (slot-value in-line 'fx) (slot-value in-line 'sx)) 2) 
+    		(expt (- (slot-value in-line 'fy) (slot-value in-line 'sy)) 2))))
 
 
 ;(print (get-intersect 0 0 3 2 1 0 1 1))
@@ -141,11 +141,12 @@
 			     		:fx (car h-intersect) :fy (cadr h-intersect))))
 			
 				(if (< (line-length h-line) (line-length v-line))
-					((setf xinter (car h-intersect)) 
-						(setf yinter (cadr	h-intersect)))
 
-					((setf xinter (car v-intersect)) 
-						(setf yinter (cadr v-intersect))))
+					(progn (setf xinter (car h-intersect))
+							(setf yinter (cadr h-intersect)))
+
+					(progn (setf xinter (car v-intersect))
+							(setf yinter (cadr v-intersect))))
 
 		(print xinter) 
 		(print yinter) 
@@ -207,7 +208,8 @@
 
 	;(things #'-)
     
-    (print map-thing))
+    ;(print map-thing))
+    )
 
 
 
