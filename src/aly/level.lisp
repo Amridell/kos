@@ -262,7 +262,6 @@
 
 (defun project-ray-to-grid (x y rx ry)
   "Get next grid line intersection along the ray."
-  ;; TODO: implement.
   (let ((i1
 	 (cond ((> rx 0)
 		(get-segment-intersection x y rx ry (floor (+ x 1)) (floor y) 0 1))
