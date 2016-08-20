@@ -257,7 +257,7 @@
 	
 ;(print (make-array '(17 20) :initial-element #\#))
 
-(let* ( (map-thing 3)
+(let* ( (map-thing)
 		(array-h 20)
 		(array-l 17)
 		(stx (random-from 1 (- 20 1)))
