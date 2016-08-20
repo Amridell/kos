@@ -255,6 +255,11 @@
   ;; TODO: implement using segments-intersect-p
   T)
 
+(defun vector-length (&rest components)
+  (loop for x in components
+     when (numberp x) summing (* x x) into total
+     finally (return (sqrt total))))
+
 (defun project-ray (x y rx ry)
   "Return next grid line intersection."
   ;; TODO: implement.
