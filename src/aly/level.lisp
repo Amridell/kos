@@ -1,8 +1,15 @@
 ;;;; Alysaur trying to make a level.
 
+(defvar *somewhat-zero* 0.0001)
+
 (defun random-from (low high)
   "Return a random number between the specified low and high limits."
   (+ low (random (- high low -1))))
+
+(defun random-until (low exclusive-high)
+  "Return a random number between the low (inclusive) and
+   high (exclusive) limits."
+  (+ low (random (- exclusive-high low))))
 
 (defun make-wall (width)
   "Make a horizontal wall of the specified width.
@@ -198,6 +205,63 @@
 	   :accessor size
 	   :documentation "Length of the corridor along its direction.")))
 
+(defun random-edge-position (width height)
+  (let ((n (random-from 0 3)))
+    (cond ((= n 0) (list 0 (random-until 0 height)))
+	  ((= n 1) (list (- width 1) (random-until 0 height)))
+	  ((= n 2) (list (random-until 0 width) 0))
+	  (t (list (random-until 0 width) (- height 1))))))
+
+(defun make-dorf (x y)
+  (list :x x :y y :vx 0 :vy 0 :m 1))
+
+(defun apply-force (entity fx fy &optional (dt 1))
+  (incf (getf entity :vx) (* dt (/ fx (getf entity :m))))
+  (incf (getf entity :vy) (* dt (/ fy (getf entity :m))))
+  entity)
+
+(defun step-time (entity &optional (dt 1))
+  (incf (getf entity :x) (* dt (getf entity :vx)))
+  (incf (getf entity :y) (* dt (getf entity :vy)))
+  entity)
+
+(defun ray-traverses-cells-p (x y dx dy)
+  "Test if ray traverses between multiple cells."
+  (not (and (= (floor x) (floor (+ x dx)))
+	    (= (floor y) (floor (+ y dy))))))
+
+(defun is-parallel (ux uy vx vy)
+  (< (abs (- (* ux vy) (* vx uy))) *somewhat-zero*))
+
+(defun segments-intersect-p (px py ux uy qx qy vx vy)
+  (let* ((wx (- px qx))
+	 (wy (- py qy))
+	 (s_numerator (- (* vy wx) (* vx wy)))
+	 (t_numerator (- (* ux wy) (* uy wx)))
+	 (s_denominator (- (* vx uy) (* vy ux)))
+	 (t_denominator (- s_denominator)))
+    (cond ((< (abs s_denominator) *somewhat-zero*) nil)
+	  (t (let ((s_intersection (/ s_numerator s_denominator))
+		   (t_intersection (/ t_numerator t_denominator)))
+	       (and (<= 0 s_intersection 1) (<= 0 t_intersection 1)))))))
+
+(defun ray-intersects-cell-p (x y rx1 ry1 rx2 ry2)
+  ;; TODO: implement using segments-intersect-p
+  T)
+
+(defun project-ray (x y rx ry)
+  "Return next grid line intersection."
+  ;; TODO: implement.
+  T)
+
+(defun tunnel (array x y)
+  (setf (aref array x y) #\Space)
+  array)
+
+(defun make-terrain (width height)
+  (let ((terrain (make-array (list height width) :initial-element #\#)))
+    (dotimes (n 10) (tunnel terrain n n))
+    terrain))
 
 ;;; Test generation of a level.
 (setf *random-state* (make-random-state t))
