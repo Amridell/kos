@@ -156,6 +156,22 @@
 	   do (setf (subseq (nth n tiles) (- (x area) x1)) row)))
       tiles)))
 
+(defun array-from-list (list-of-lists)
+  "Create a 2d array from a list of lists."
+  (make-array (list (length list-of-lists)
+		    (length (first list-of-lists)))
+	      :initial-contents list-of-lists))
+
+(defun array-from-level (level)
+  (array-from-list (list-from-level level)))
+
+(defun draw-array (level-array)
+  (destructuring-bind (height width) (array-dimensions level-array)
+    (loop for y from 0 to (- height 1)
+       do (loop for x from 0 to (- width 1)
+	     do (write-char (aref level-array y x)))
+       do (format t "~%"))))
+
 (defmethod draw ((shape level))
   "Draw a level to the screen."
   (draw-area (list-from-level shape)))
@@ -167,4 +183,4 @@
 (add (make-instance 'area :height 5 :width 8 :x -2 :y 1) shabam)
 (add (make-instance 'area :height 6 :width 10 :x 12 :y -1) shabam)
 (add (make-instance 'area :height 4 :width 14 :x 2 :y 7) shabam)
-(draw shabam)
+(draw-array (array-from-level shabam))
