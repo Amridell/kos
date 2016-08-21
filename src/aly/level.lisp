@@ -181,6 +181,7 @@
     (and (>= x 0) (>= y 0) (< x w) (< y h))))
 
 (defun visiblep (level-array x-position y-position)
+  ;; TODO: implement
   (destructuring-bind (height width) (array-dimensions level-array)
     (loop for (dx  dy) in '((-1 -1) (-1 0) (-1 1) (0 1)
 			    (1 1) (1 0) (1 -1) (0 -1))
@@ -261,6 +262,7 @@
 
 (defun project-ray-to-grid (x y rx ry)
   "Get next grid line intersection along the ray."
+  ;; TODO: fix
   (let ((i1
 	 (cond ((> rx 0)
 		(get-segment-intersection x y rx ry (floor (+ x 1)) (floor y) 0 1))
