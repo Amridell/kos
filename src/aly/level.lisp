@@ -277,17 +277,20 @@
 	       (t nil))))
     (if (null i2) i1 i2)))
 
+(defun get-direction (ax ay bx by)
+  (let ((vertical-direction (cond
+			      ((= (+ 1 (floor ay)) by) "S")
+			      ((= (- 1 (ceiling 1 ay)) by) "N")
+			      (t "")))
+	(horizontal-direction (cond
+				((= (+ 1 (floor ax)) bx) "E")
+				((= (- 1 (ceiling ax)) bx) "W")
+				(t ""))))
+    (concatenate 'string vertical-direction horizontal-direction)))
+
 (defun get-grid-projection-direction (x y rx ry)
   (destructuring-bind (ix iy) (project-ray-to-grid x y rx ry)
-    (let ((vertical-direction (cond
-				((> (floor iy) y) "S")
-				((< (floor iy) y) "N")
-				(t "")))
-	  (horizontal-direction (cond
-				  ((> (floor ix) x) "E")
-				  ((< (floor ix) x) "W")
-				  (t ""))))
-	  (concatenate 'string vertical-direction horizontal-direction))))
+    (get-direction x y ix iy)))
 
 (defun ray-intersects-cell-p (x y rx1 ry1 rx2 ry2)
   ;; TODO: implement using segments-intersect-p
