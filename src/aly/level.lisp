@@ -260,6 +260,10 @@
      when (numberp x) summing (* x x) into total
      finally (return (sqrt total))))
 
+(defun make-unit-vector (&rest components)
+  (let ((divisor (apply #'vector-length components)))
+    (mapcar #'(lambda (x) (/ x divisor)) components)))
+
 (defun project-ray-to-grid (x y rx ry)
   "Get next grid line intersection along the ray."
   ;; TODO: fix
