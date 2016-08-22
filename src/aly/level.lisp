@@ -264,6 +264,10 @@
   (let ((divisor (apply #'vector-length components)))
     (mapcar #'(lambda (x) (/ x divisor)) components)))
 
+(defun somewhat-interger-p (x)
+  "Test if a number is an integer (or really close to one)."
+  (multiple-value-bind (n r) (round x) (< (abs r) *somewhat-zero*))
+
 (defun project-ray-to-grid (x y rx ry)
   "Get next grid line intersection along the ray."
   ;; TODO: fix
