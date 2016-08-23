@@ -259,12 +259,13 @@
   (= (length (get-segment-intersection px py ux uy qx qy vx vy)) 2))
 
 (defun vector-length (&rest components)
-  "Get vector magnitude."
+  "Get the magnitude of a vector."
   (loop for x in components
      when (numberp x) summing (* x x) into total
      finally (return (sqrt total))))
 
 (defun make-unit-vector (&rest components)
+  "Make a unit vector with the same direction as the supplied vector."
   (let ((divisor (apply #'vector-length components)))
     (mapcar #'(lambda (x) (/ x divisor)) components)))
 
@@ -290,6 +291,7 @@
     (if (null i2) i1 i2)))
 
 (defun get-direction (ax ay bx by)
+  "Get relative cardinal direction between two points."
   (let ((vertical-direction (cond
 			      ((= (+ 1 (floor ay)) by) "S")
 			      ((= (- 1 (ceiling 1 ay)) by) "N")
@@ -301,6 +303,7 @@
     (concatenate 'string vertical-direction horizontal-direction)))
 
 (defun get-grid-projection-direction (x y rx ry)
+  "Get cardinal direction of the next tile after projection."
   (destructuring-bind (ix iy) (project-ray-to-grid x y rx ry)
     (get-direction x y ix iy)))
 
