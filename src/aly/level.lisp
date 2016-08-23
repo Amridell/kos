@@ -235,6 +235,10 @@
   "Test if two vectors are parallel."
   (< (abs (- (* ux vy) (* vx uy))) *somewhat-zero*))
 
+(defun intergerp (x)
+  "Test if a number is an integer."
+  (zerop (nth-value 1 (round x))))
+
 (defun get-segment-intersection (px py ux uy qx qy vx vy)
   "Get intersection point of two line segments."
   (let* ((wx (- px qx))
