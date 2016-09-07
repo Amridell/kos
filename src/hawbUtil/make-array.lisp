@@ -12,7 +12,9 @@
     (setq map (list (list #\#  #\#  #\#  #\#  #\#  #\#) 
         (list #\#  #\.  #\@  #\.  #\.  #\#) 
         (list #\#  #\.  #\.  #\@  #\@  #\#)  
-        (list #\#  #\@  #\.  #\.  #\.  #\#) 
+        (list #\#  #\.  #\.  #\.  #\.  #\#) 
         (list #\#  #\#  #\#  #\#  #\#  #\#)))
 
     (format t "~a~%" (make-map-array map))))
+
+(make-array-test)

@@ -11,17 +11,6 @@
 			;;do (print (coerce (aref line 0) 'character)))))
 			collect (concatenate 'list line))))
 
-	;(with-open-file (str "filename.txt"
-    ;                 :direction :output
-    ;                 :if-exists :supersede
-    ;                 :if-does-not-exist :create)
-   ; 	(loop for line in output do (print line)))))
-				;;loop for char in line
-				;;do (print (coerce char 'character))))))
-				;collect (coerce char 'character)))))
-
-
-
 ;;changes the room, from looking like
 #| 
 ####################################
@@ -30,14 +19,16 @@
 #..................................|
 ##--################################
 |# 
+
 ;; to lists of chars, ie
 ;; ((#\#) (#\@) (#\#))
 
-(with-open-file (outfile "filename.txt"
+(defun save-room-txt ()
+  (with-open-file (outfile "room-bak.txt"
                      :direction :output
                      :if-exists :supersede
                      :if-does-not-exist :create)
-	(prin1 (convert-room "room.txt") outfile))
+	    (prin1 (convert-room "room.txt") outfile)))
 
 #|
 ####################################                
