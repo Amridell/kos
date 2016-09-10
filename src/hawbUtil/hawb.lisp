@@ -59,6 +59,7 @@
 
 ;;;(tcod:console-print tcod:*root* 1 1 "thing")
 
+
 (defun is-walkable (y x map) 
 
 	;;if the x or y is out of the 
@@ -73,10 +74,17 @@
 		;;chars in the array
 		(cond
 		 	((char= map-char #\#) nil)
-			((char= map-char #\.) t)
-			((char= map-char #\|) t)
-			((char= map-char #\-) t)
-			((char= map-char #\?) nil))))
+
+			;((char= map-char #\.) t)
+
+			;((char= map-char #\|) t)
+			;((char= map-char #\-) t)
+
+			;((char= map-char #\X) t)
+
+			((char= map-char #\?) nil)
+
+			(t (not (char= map-char #\#))))))
 
 
 (tcod:console-set-custom-font
