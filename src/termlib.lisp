@@ -24,6 +24,31 @@
 (defun row>pix (row-index)
   (* row-index *character-height*))
 
+(defstruct cell
+  (fg-color (list 255 255 255) :type list)
+  (bg-color (list 0 0 0) :type list)
+  (char #\Space :type character)
+  (surface nil)
+  (texture nil))
+
+(defun draw-cell (renderer cell rect)
+  (when (cell-texture cell)
+    (let ((color (cell-bg-color cell)))
+      (sdl2:set-render-draw-color renderer (nth 0 color) (nth 1 color) (nth 2 color) 255))
+    (sdl2:render-draw-rect renderer rect)
+    (sdl2:render-copy renderer (cell-texture cell) :source-rect (cffi:null-pointer) :dest-rect rect)))
+
+(defun draw-grid (renderer grid rows cols)
+  (let ((rect (sdl2:make-rect 0 0 *character-width* *character-height*)))
+    (dotimes (y rows)
+      (dotimes (x cols)
+	(let ((cell (aref grid y x)))
+	  (when cell
+	    (plus-c:c-let ((rect sdl2-ffi:sdl-rect :from rect))
+	      (setf (rect :x) (* x *character-width*)
+		    (rect :y) (* y *character-height*)))
+	    (draw-cell renderer cell rect)))))))
+
 (defun test ()
   (sdl2:with-init (:everything)
     (sdl2:with-window (window)
@@ -37,7 +62,22 @@
 		   (texture (sdl2:create-texture-from-surface renderer surface)))
 	      (setf *character-width* (sdl2:texture-width texture)
 		    *character-height* (sdl2:texture-height texture))
-	      (let ((rect (sdl2:make-rect (col>pix 0) (row>pix 0) *character-width* *character-height*)))
+	      (let* ((num-rows (floor (/ window-height *character-height*)))
+		     (num-cols (floor (/ window-width *character-width*)))
+		     (cell-grid (make-array (list num-rows num-cols) :initial-element nil))
+		     ;(rect (sdl2:make-rect (col>pix 0) (row>pix 0) *character-width* *character-height*))
+		     )
+
+		(dotimes (y num-rows)
+		  (dotimes (x num-cols)
+		    (setf (aref cell-grid y x) (make-cell))))
+
+		(let* ((cell (aref cell-grid 0 0))
+		       (color (cell-fg-color cell)))
+		  (setf (cell-char cell) #\@
+			(cell-fg-color cell) (list 255 0 255)
+			(cell-surface cell) (sdl2-ttf:render-text-blended font (coerce (list (cell-char cell)) 'string) (nth 0 color) (nth 1 color) (nth 2 color) 255)
+			(cell-texture cell) (sdl2:create-texture-from-surface renderer (cell-surface cell))))
 		(sdl2:with-event-loop (:method :poll)
 		  (:keyup (:keysym keysym)
 			  (let ((scancode-value (sdl2:scancode-value keysym)))
@@ -47,10 +87,12 @@
 			 (sdl2:set-render-draw-color renderer 0 0 0 255)
 			 (sdl2:render-clear renderer)
 			 
-			 (sdl2:set-render-draw-color renderer 255 255 255 255)
-			 (sdl2:render-draw-rect renderer rect)
+			 ;(sdl2:set-render-draw-color renderer 255 255 255 255)
+			 ;(sdl2:render-draw-rect renderer rect)
 			 
-			 (sdl2:render-copy renderer texture :source-rect (cffi:null-pointer) :dest-rect rect)
+			 ;(sdl2:render-copy renderer texture :source-rect (cffi:null-pointer) :dest-rect rect)
 			 
+			 (draw-grid renderer cell-grid num-rows num-cols)
+
 			 (sdl2:render-present renderer))
 		  (:quit () t))))))))))
