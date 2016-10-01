@@ -18,6 +18,7 @@
 	       (:file "utilities")
 	       (:file "map"
 		      :depends-on ("utilities"))
+	       (:file "termlib")
 	       (:file "kos"
 		      :depends-on ("package" "utilities" "map")))
   :depends-on (:cl-termbox))
