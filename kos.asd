@@ -21,4 +21,4 @@
 	       (:file "termlib")
 	       (:file "kos"
 		      :depends-on ("package" "utilities" "map")))
-  :depends-on (:cl-termbox))
+  :depends-on (:cl-termbox :sdl2 :sdl2-ttf))
