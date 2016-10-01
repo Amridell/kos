@@ -49,6 +49,17 @@
 		    (rect :y) (* y *character-height*)))
 	    (draw-cell renderer cell rect)))))))
 
+(defun set-cell (renderer cell-grid font x y &key (char #\Space) fg bg)
+  (let* ((cell (aref cell-grid y x)))
+    (when fg
+      (setf (cell-fg-color cell) fg))
+    (when bg
+      (setf (cell-bg-color cell) bg))
+    (let ((color (cell-fg-color cell)))
+      (setf (cell-char cell) char)
+      (setf (cell-surface cell) (sdl2-ttf:render-text-blended font (coerce (list (cell-char cell)) 'string) (nth 0 color) (nth 1 color) (nth 2 color) 255))
+      (setf (cell-texture cell) (sdl2:create-texture-from-surface renderer (cell-surface cell))))))
+
 (defun test ()
   (sdl2:with-init (:everything)
     (sdl2:with-window (window)
@@ -72,12 +83,11 @@
 		  (dotimes (x num-cols)
 		    (setf (aref cell-grid y x) (make-cell))))
 
-		(let* ((cell (aref cell-grid 0 0))
-		       (color (cell-fg-color cell)))
-		  (setf (cell-char cell) #\@
-			(cell-fg-color cell) (list 255 0 255)
-			(cell-surface cell) (sdl2-ttf:render-text-blended font (coerce (list (cell-char cell)) 'string) (nth 0 color) (nth 1 color) (nth 2 color) 255)
-			(cell-texture cell) (sdl2:create-texture-from-surface renderer (cell-surface cell))))
+		(set-cell renderer cell-grid font 0 0 :char #\+ :fg (list 255 255 255))
+		(set-cell renderer cell-grid font 1 0 :char #\- :fg (list 255 255 255))
+		(set-cell renderer cell-grid font 0 1 :char #\| :fg (list 255 255 255))
+		(set-cell renderer cell-grid font 1 1 :char #\@ :fg (list 255 0 255))
+		
 		(sdl2:with-event-loop (:method :poll)
 		  (:keyup (:keysym keysym)
 			  (let ((scancode-value (sdl2:scancode-value keysym)))
