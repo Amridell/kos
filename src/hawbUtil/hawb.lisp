@@ -49,9 +49,12 @@
 		;;loops through the array to print all of
 		;;the characters inside of it
 		(loop for y from 0 to (- height 1)
+		
 			do (loop for x from 0 to (- width 1)
-				;do (write-char (aref given-array y x))
-				do (tcod::console-put-char tcod:*root* x y (char-code (aref given-array y x)) :set)))))
+				
+				do (tcod::console-put-char 
+					tcod:*root* x y 
+					(char-code (aref given-array y x)) :set)))))
 
 
 				;do (tcod:console-print tcod:*root* x y (write-to-string (aref given-array y x))))
@@ -73,18 +76,16 @@
 		;;the list of available 
 		;;chars in the array
 		(cond
+			;;checks that the tile isnt
+			;;any of these
 		 	((char= map-char #\#) nil)
-
-			;((char= map-char #\.) t)
-
-			;((char= map-char #\|) t)
-			;((char= map-char #\-) t)
-
-			;((char= map-char #\X) t)
-
 			((char= map-char #\?) nil)
 
-			(t (not (char= map-char #\#))))))
+			;;unneeded
+			;((char= map-char #\.) t)
+
+			;;else just return true, should be fine
+			(t '(t)))))
 
 
 (tcod:console-set-custom-font
@@ -99,6 +100,8 @@
 		:title "Libtcod Lisp Tutorial" 
 		:fullscreen? nil :renderer 
 		:renderer-sdl)
+
+	(tcod:sys-set-fps 15)
 
 	(defparameter *map* (make-map-array (convert-room "room.txt")))
 
@@ -117,7 +120,10 @@
 			(setf *x* (- *map-width* 1)))
 
 		 (tcod::console-clear tcod:*root*)
+
+		 ;;if map changed***
 		 (print-room *map*)
+
 		 (tcod::console-put-char tcod:*root* *x* *y* (char-code #\@) :set)	
 		 (tcod::console-flush)
 
@@ -130,7 +136,7 @@
 		 			(decf *y*)))
 		 	
 		 	(if (tcod:is-key-pressed? :DOWN) 
-		 		(if (is-walkable *x* (+ *y* 1) *map*) 
+		 		(if (is-walkable *x* (+ *y* 1) *map*)
 		 			(incf *y*)))
 		 	
 		 	(if (tcod:is-key-pressed? :LEFT) 
