@@ -2,7 +2,6 @@ b
 bb
 d
 dd
-ed
 f
 ph
 g
@@ -62,3 +61,12 @@ tch
 ge
 s
 wh
+zz
+zsh
+q
+lk
+lf
+jh
+tc
+zh
+hh

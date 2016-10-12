@@ -1,4 +1,3 @@
-#!/usr/bin/sbcl --script
 
 
 (setf *random-state* (make-random-state t))
@@ -68,117 +67,140 @@
 	(list-to-array (file-to-list file-name)))
 
 
+;makes a struck for the node that will
+;contain a single character and a list
+(defstruct node
+  (data nil)
+  (children nil))
 
 
-(defparameter consonants (file-to-array "consonant.txt"))
-;(print (length consonants))
+(defun get-rest-of-chars (word)
+	"returns the 2nd-final characters, 
+	if the string has more that 1 char"
+  (let ((length (length word)))
+    (if (> length 1)
+    	;if length > 1, return chars
+		(subseq word 1 length)
+		;else return empty string
+		"")))
 
-(defparameter vowels (file-to-list "vowel.txt"))
-;(print (length vowels))
+(defun char-in-tree? (char tree)
+	"checks the first member of a branch,
+	and does a char comparison on each node
+	for some given character"
+  (first (member char (node-children tree)
 
-(defstruct node (data "start" :type string) next)
-
-
- 
-;(defparameter thing (make-node :data "f" :children (list 1 2 3)))
-
-(defun node-string= (node-in string-in)
-
-	(if (string= (node-data node-in) "start") 
-	t
-	(string= (node-data node-in) string-in)))
-
-
-;(defparameter tree (list (make-node :data "start" :children (list nil))))
-;(defparameter tree (list (make-node :data "start" :next (list))))
-
-(defun get-word-tree (word-list)
-	"loops through all the strings in a list, appends to a list"
-	;set the tree to just being a a starting list
-	(let ((tree (list (make-node :data "start" :next (list)))))
-		;for each word in the list, call branch on it
-		(loop for word in word-list
-			do (get-word-branch word tree))
-		;output the tree
-		tree))
-
-(defun get-word-branch (word curr-tree)
-	"loop through members of curr-tree, if match, recurse on that node, 
-	else add a the first char to the list, continue recursing"
-	
-	;initialize variables, first
-	;and rest are the first char
-	;and rest of the string resepectively
-	
-	(if (null word) (return-from get-word-branch nil))
-
-	(let* ((first (if (< 0 (length word))
-						(coerce (list (aref word 0)) 'string) 
-						nil))
-
-		(rest (if (not (null first)) (subseq word 1) nil)))
-	
-		;for the nodes in the current tree,
-		(loop for i in curr-tree
-			
-			;if the nodes data member is start, 
-			;set its member as the first char
-			do (if (string= (node-data i) "start")
-				(setf (node-data i) first)
-				())
-			
-			do (if (node-string= i first)
-			 	;if the node and first match call get-branch again
-				(get-word-branch rest (node-next i))
-
-				;else, append a new node into curr-tree
-				;and call the get-branch function again
-				(progn (setf curr-tree
-							(append curr-tree
-								(list (make-node :data first :next (list nil)))))
-						(get-word-branch rest curr-tree))))
-					
-		;(print curr-tree))
-		curr-tree))
-							
+  			;maps a lambda function to the list, to
+  			;verify if the node is equal to the given char
+  			:test (lambda (char node) 
+  				(char= char (node-data node))))))
 
 
-(print (get-word-tree vowels))
+(defun add-word-to-tree (word tree)
+	"takes a word and tree, verifies (member tree first-char)
+	and adds a node, or further recurses"  
+  ;while the length of the word is <= 0
+  (when (plusp (length word))
+
+  	;gather the first and rest characters,
+  	;and search the branch of nodes for the 
+  	;one containing the first char
+   (let* ((first-char (aref word 0))
+	  	(rest-of-chars (get-rest-of-chars word))
+	  	(containing-tree (char-in-tree? first-char tree)))
+
+     (if containing-tree
+
+     	;if the char is in the current branch,
+     	;and the char isnt empty, call add-word
+     	;on the matching member
+	 	(unless (string= rest-of-chars "")
+	  		(add-word-to-tree rest-of-chars containing-tree))
+
+	 	;push the first character into a new node, and
+	 	;call the call the function again, if rest-of-chars
+	 (progn
+	   (push (make-node :data first-char) (node-children tree))
+	   (add-word-to-tree rest-of-chars (first (node-children tree)))))))
+  
+  ;return the tree
+  tree)
+
+(defun make-tree (list-of-words)
+  (let ((tree (make-node)))
+  	;for each word in the list, add
+  	;a branch, or modify one
+    (dolist (word list-of-words)
+      (add-word-to-tree word tree))
+    ;return the tree
+    tree))
+
+;;creates the variables *vowels* and *consonants* they
+;;will hold the trees that will be used for words
+(defparameter *consonants* (make-tree (file-to-list "consonant.txt")))
+;(setf *consonants* (make-tree *consonants*))
+;(print (length *consonants*))
+
+(defparameter *vowels* (make-tree (file-to-list "vowel.txt")))
+;(setf *vowels* (make-tree *vowels*))
+;(print (length *vowels*))
+
+
+;(print *vowels*)
+;(print *consonants*)
 
 
 
-
-(defun get-vowel () 
-	"returns a random string made of a vowel"
-	(nth (random-from 0 (- (length vowels) 1)) vowels))
-
-(defun get-conson () 
-	"returns a random string made of a consonant"
-	(aref consonants (random-from 0 (- (length consonants) 1))))
-
-(defun syllable-gen () 
-	"generates a syllable based off vowels and consonants"
-	(concatenate 'string (get-vowel) (get-vowel)))
+(defun get-vowel (&optional branch)
+	(if (null branch) 
+		(let ((branch (nth (random-from 0 (- (length (node-children *vowels*)) 1)) (node-children *vowels*))))
+			(concatenate 'string
+				(string (node-data branch))
+				(get-conson branch)))
+		(progn
+			(if (null (node-children branch)) (return-from get-vowel nil))
+			(node-data (nth (random-from 0 (- (length (node-children branch)) 1)) (node-children branch))))))
 
 
-(defun word-gen ()
-	"randomly generates a number of syllables and produces a string"
-	(let (word) 
-		(loop for syl-count from 0 to (weighted-random-from 1 3 6)
 
-	;add some junk in here
-			do (print syl-count)
-			do (print (setf word 
-				(concatenate 'string word (syllable-gen)))))))
-	;herehrehrherherhehre
-		
+(defun get-conson (&optional branch)
+	(if (null branch) 
+		(let ((branch (nth (random-from 0 (- (length (node-children *consonants*)) 1)) (node-children *consonants*))))
+			(concatenate 'string
+				(string (node-data branch))
+				(get-conson branch)))
+		(progn
+			(if (null (node-children branch)) (return-from get-conson nil))
+			(node-data (nth (random-from 0 (- (length (node-children branch)) 1)) (node-children branch))))))
+;(print (nth (random-from 0 (length (node-children *consonants*))) (node-children *consonants*)))
+
+
+
+(defun get-chunk ()
+	(nth (random 7) 
+				(list (list (get-vowel)) 
+					(list (get-vowel) (get-conson))
+					(list (get-vowel) (get-conson) (get-conson))
+					(list (get-conson) (get-conson) (get-vowel))
+					(list (get-vowel) (get-conson) (get-conson))
+					(list (get-conson) (get-vowel)))))
+
+
+
+(defun gen-syllable ()
+	(loop for i from 0 to (weighted-random-from 1 2 7)
+		collect (get-chunk)))
+
+(print (gen-syllable))
+
 
 ;(lambda (x) (* x 2))
 
 ;(list #'+ (function -) (symbol-function '*) (lambda (x) (* x 2)))
 	
 
-(word-gen)
+;(word-gen)
 
 
-(print "")
+;(print nil)
+

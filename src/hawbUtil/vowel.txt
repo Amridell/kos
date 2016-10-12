@@ -1,6 +1,10 @@
 a
+aa
+ae
 ai
+ao
 air
+afa
 ar
 are
 au
@@ -9,8 +13,10 @@ ay
 e
 ea
 ear
+ed
 ee
 eer
+et
 ei
 er
 ere
@@ -20,12 +26,15 @@ i
 ie
 ig
 igh
+ifu
 ir
 irr
+iy
 o
 oa
 oe
 oi
+ond
 oo
 oor
 or
@@ -39,5 +48,7 @@ ow
 oy
 u
 ue
+ul
 ur
+uw
 y
