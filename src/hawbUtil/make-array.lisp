@@ -17,4 +17,11 @@
 
     (format t "~a~%" (make-map-array map))))
 
-(make-array-test)
+;(make-array-test)
+
+(defparameter map-length 30)
+
+(defun make-test-map ()
+  (make-array '(map-length map-length) :initial-element #\#))
+
+(make-test-map)

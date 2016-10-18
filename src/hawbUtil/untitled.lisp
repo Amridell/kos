@@ -1,8 +1,6 @@
-<<<<<<< HEAD:src/hawbUtil/untitled.lisp
+
 #!/usr/bin/sbcl --script
 
-=======
->>>>>>> 6a1c637b3293e78d08772050f0c12098ae4e0252:src/hawbUtil/name-gen.lisp
 (setf *random-state* (make-random-state t))
 
 (defun random-from (low high)
