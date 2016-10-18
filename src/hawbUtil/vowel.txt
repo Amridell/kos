@@ -51,4 +51,3 @@ ue
 ul
 ur
 uw
-y

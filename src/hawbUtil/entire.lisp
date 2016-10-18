@@ -1,4 +1,4 @@
-
+#!/usr/bin/sbcl --script
 
 (setf *random-state* (make-random-state t))
 
@@ -43,14 +43,13 @@
 			(t
 				(random-from (+ (get-percentile high-range .86) mid) high)))))
 
-(defun test-weight-random () 
-	(loop for i from 0 to 10000
-		summing (weighted-random-from 0 150 300) into total
-		finally (return (/ total (float 10000)))))
-
-;(print (test-weight-random))
+;(defun test-weight-random () 
+;	(loop for i from 0 to 10000
+;		summing (weighted-random-from 0 150 300) into total
+;		finally (return (/ total (float 10000)))))
 
 
+;turns a file into a list of strings
 (defun file-to-list (file-name) 
 "makes a list of all the lines in a file"
     (with-open-file (stream file-name)
@@ -58,10 +57,13 @@
             while line collect line)))
 
 
+;turns a list into an array 
 (defun list-to-array (in-list) 
 "forms an array given a list of items"
     (make-array (length in-list) :initial-contents in-list))
 
+
+;given a file, turns it into an array
 (defun file-to-array (file-name) 
 "uses list-to-array and file-to-list to get an array from file"
 	(list-to-array (file-to-list file-name)))
@@ -152,46 +154,71 @@
 
 
 (defun get-vowel (&optional branch)
-	(if (null branch) 
+	(if (null branch)
 		(let ((branch (nth (random-from 0 (- (length (node-children *vowels*)) 1)) (node-children *vowels*))))
-			(concatenate 'string
-				(string (node-data branch))
-				(get-conson branch)))
-		(progn
-			(if (null (node-children branch)) (return-from get-vowel nil))
-			(node-data (nth (random-from 0 (- (length (node-children branch)) 1)) (node-children branch))))))
+			(format nil "~a~a" 
+				(node-data branch)
+				(get-vowel branch))
 
+		(if (null (node-children branch)) (return-from get-vowel (node-data branch))
+			(format nil "~a~a" 
+				(node-data branch)
+				
+				(if (= 0 (random 8)) 
+					(node-data 
+						(nth (random-from 0 (- (length (node-children branch)) 1)) 
+						(node-children branch)))
+					'""))))))
 
 
 (defun get-conson (&optional branch)
-	(if (null branch) 
+	(if (null branch)
 		(let ((branch (nth (random-from 0 (- (length (node-children *consonants*)) 1)) (node-children *consonants*))))
-			(concatenate 'string
-				(string (node-data branch))
-				(get-conson branch)))
-		(progn
-			(if (null (node-children branch)) (return-from get-conson nil))
-			(node-data (nth (random-from 0 (- (length (node-children branch)) 1)) (node-children branch))))))
+			(format nil "~a~a" 
+				(node-data branch)
+				(get-conson branch))
+
+		(if (null (node-children branch)) (return-from get-conson (node-data branch))
+			(format nil "~a~a" 
+				(node-data branch)
+				
+				(if (= 0 (random 8))  
+					(node-data 
+						(nth (random-from 0 (- (length (node-children branch)) 1)) 
+						(node-children branch)))
+					'""))))))
 ;(print (nth (random-from 0 (length (node-children *consonants*))) (node-children *consonants*)))
 
 
 
 (defun get-chunk ()
-	(nth (random 7) 
+	;(nth (random 7) 
+		(nth (random 7) 
 				(list (list (get-vowel)) 
+					(list (get-vowel) (get-vowel))
 					(list (get-vowel) (get-conson))
 					(list (get-vowel) (get-conson) (get-conson))
 					(list (get-conson) (get-conson) (get-vowel))
-					(list (get-vowel) (get-conson) (get-conson))
+					(list (get-conson) (get-vowel) (get-conson))
 					(list (get-conson) (get-vowel)))))
 
 
 
 (defun gen-syllable ()
-	(loop for i from 0 to (weighted-random-from 1 2 7)
+	(loop for i from 0 to (weighted-random-from 1 3 5)
 		collect (get-chunk)))
+		;do (print i)
+		;collect (print (get-chunk))))
 
-(print (gen-syllable))
+
+;(with-open-file (stream "name.txt" :direction :output) 
+;	(loop for i from 0 to 10000
+;		do(format stream "~{~{~a~}~}    " (gen-syllable))))
+
+
+;(with-open-file (stream "/some/file/name.txt")
+  ;(format t "~a~%" (read-line stream)))
+
 
 
 ;(lambda (x) (* x 2))
@@ -204,3 +231,5 @@
 
 ;(print nil)
 
+
+;(print (test-weight-random))
