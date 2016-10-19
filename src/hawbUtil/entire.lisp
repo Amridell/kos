@@ -1,5 +1,3 @@
-#!/usr/bin/sbcl --script
-
 (setf *random-state* (make-random-state t))
 
 (defun random-from (low high)
